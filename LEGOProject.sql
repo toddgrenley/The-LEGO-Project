@@ -1,4 +1,8 @@
 
+Part I
+Starting with the Sets and Themes tables
+
+
 SELECT *
 FROM [Portfolio Project]..LegoSets
 
@@ -118,4 +122,79 @@ WHERE ParentTheme = 'Harry Potter'
 
 -- It works beautifully. Now we can see every set ever released along with its year, number of parts, and themes it was part of! (Which is what most Lego enthusiasts 
 -- would care about)
--- Work in progress. More to come!
+
+
+
+Part II
+
+
+
+-- It's all been well and good with the first two tables, but what if we want more information on the Lego sets, such as individual parts?
+-- We'll need to connect to other tables for more information, some of which have no directly shared fields, so we'll need to stretch a bit
+
+-- First, let's check out the Inventories table, which is the parent table of the database
+
+SELECT *
+FROM [Portfolio Project]..LegoInventories
+
+-- And then go ahead and join with our first Sets table to see how they line up
+
+SELECT *
+FROM [Portfolio Project]..LegoSets AS Sets
+JOIN [Portfolio Project]..LegoInventories AS Inv
+	ON Sets.set_num = Inv.set_num
+
+-- Clean it up and select only relevant information. Also we'll order by ID, which is the primary column of the parent table
+
+SELECT Sets.set_num, Inv.id, name, year, num_parts
+FROM [Portfolio Project]..LegoSets AS Sets
+JOIN [Portfolio Project]..LegoInventories AS Inv
+	ON Sets.set_num = Inv.set_num
+ORDER BY id
+
+-- We see that the 'set_num' serial number lines up with a numerical ID in the parent table, so we can use this to reach information in other indirectly related tables
+-- Now we'll go to the Inventory Parts table, where this query will show us how each individual set lines up with the parts within it
+
+SELECT id, set_num, part_num, quantity, color_id
+FROM [Portfolio Project]..LegoInventories AS Inv
+JOIN [Portfolio Project]..LegoInventoryParts AS InvP
+	ON Inv.id = InvP.inventory_id
+ORDER BY set_num
+
+-- The only problem is the name of the Sets is not displayed, just the serial numbers, so just like with lining up the themes, we'll need to create a new table to 
+-- query to line up the names of the Sets with the Parts they contain
+
+CREATE TABLE #PartsSorted
+(
+id numeric,
+set_num nvarchar (255),
+part_num nvarchar (255),
+quantity numeric,
+color_id nvarchar (255)
+)
+
+INSERT INTO #PartsSorted
+SELECT id, set_num, part_num, quantity, color_id
+FROM [Portfolio Project]..LegoInventories AS Inv
+JOIN [Portfolio Project]..LegoInventoryParts AS InvP
+	ON Inv.id = InvP.inventory_id
+
+-- Let's test it out
+
+SELECT Sets.set_num, name, year, num_parts, part_num, quantity, color_id
+FROM [Portfolio Project]..LegoSets AS Sets
+JOIN #PartsSorted AS Parts
+	ON Sets.set_num = Parts.set_num
+ORDER BY id
+
+-- From this we can see a rundown of each part number within each set, so each set will appear once in the table for each different type of part in it
+-- Just to cross check, we can sum any quantity of parts for a given set to see if it matches the 'num_parts' column
+
+SELECT SUM(quantity) AS TotalPartsNeeded
+FROM [Portfolio Project]..LegoSets AS Sets
+JOIN #PartsSorted AS Parts
+	ON Sets.set_num = Parts.set_num
+WHERE name = 'Rock Raiders HQ'
+
+-- In writing the last query, I noticed all one would need to do is sum the 'quantity' column of the this table to get the TOTAL number of pieces needed to build
+-- EVERY set in LEGO's database! Close to 2 million pieces! (Simply remove the WHERE clause from the last query)
