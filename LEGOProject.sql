@@ -1,6 +1,6 @@
 
-Part I
-Starting with the Sets and Themes tables
+-- Part I
+-- Starting with the Sets and Themes tables
 
 
 SELECT *
@@ -125,7 +125,8 @@ WHERE ParentTheme = 'Harry Potter'
 
 
 
-Part II
+-- Part II
+-- Adding Inventory and Part Information
 
 
 
@@ -194,7 +195,76 @@ SELECT SUM(quantity) AS TotalPartsNeeded
 FROM [Portfolio Project]..LegoSets AS Sets
 JOIN #PartsSorted AS Parts
 	ON Sets.set_num = Parts.set_num
-WHERE name = 'Rock Raiders HQ'
+WHERE name = 'Christmas Cat Ornament'
 
 -- In writing the last query, I noticed all one would need to do is sum the 'quantity' column of the this table to get the TOTAL number of pieces needed to build
 -- EVERY set in LEGO's database! Close to 2 million pieces! (Simply remove the WHERE clause from the last query)
+
+
+
+-- Part II.5
+-- More Part Information!
+
+
+
+-- This then shows us how many different parts and different colors there are
+
+SELECT COUNT(DISTINCT part_num), COUNT (DISTINCT color_id)
+FROM [Portfolio Project]..LegoInventoryParts
+
+-- This will show us which parts show up the most in LEGO sets
+
+SELECT part_num AS Part, SUM(quantity) AS Frequency
+FROM [Portfolio Project]..LegoInventoryParts
+GROUP BY part_num
+ORDER BY Frequency desc
+
+-- But this only gives the part ID, so we'll bring in the Parts table for more specific information
+
+SELECT *
+FROM [Portfolio Project]..LegoParts
+
+-- Here is where I ran into a problem. The Parts table was loading in with many NULL values, for no discernable reason. So I performed the following queries in an
+-- attempt to fix it. This revealed that the program was not registering the cells as NULL, even though they appeared so
+
+SELECT COUNT(part_num)
+FROM [Portfolio Project]..LegoParts
+WHERE part_num is NULL
+
+-- Because I didn't yet realize what was wrong, I tried to change the data type, but the following queries had no effect
+
+SELECT CONVERT(nvarchar(20), part_num)
+FROM [Portfolio Project]..LegoParts
+
+UPDATE [Portfolio Project]..LegoParts
+SET part_num = CONVERT(nvarchar(20), part_num)
+
+-- With the help of this query below, I realized the data had been imported into my database incorrectly, with the 'part_num' column being formatted for integers,
+-- when it needed to allow for characters as well, thus triggering the NULLs
+
+SELECT 
+TABLE_CATALOG,
+TABLE_SCHEMA,
+TABLE_NAME, 
+COLUMN_NAME, 
+DATA_TYPE 
+FROM INFORMATION_SCHEMA.COLUMNS
+
+-- A simple reformat and reload of the data fixed the problem!
+-- Now I could join the tables as intended to get the part names I seek
+
+SELECT *
+FROM [Portfolio Project]..LegoInventoryParts AS InvP
+JOIN [Portfolio Project]..LegoParts AS Parts
+	ON InvP.part_num = Parts.part_num
+
+-- Now this will finally show us which pieces are the most popular in sets!
+
+SELECT InvP.part_num AS Part, name, SUM(quantity) AS Frequency
+FROM [Portfolio Project]..LegoInventoryParts AS InvP
+JOIN [Portfolio Project]..LegoParts AS Parts
+	ON InvP.part_num = Parts.part_num
+GROUP BY InvP.part_num, name
+ORDER BY Frequency desc
+
+-- We see that the vast majority of LEGO pieces are actually only used a handful of times, while the ubiquitous 'Brick 1 x 2' is used almost 70,000 times!
