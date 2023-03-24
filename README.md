@@ -8,4 +8,5 @@ this is what most people think of when they think LEGOs--their favorite sets and
 to get more specific part information to go along with the Sets. But there is a lot of data here, so more will follow, as this database by Rebrickable was actually compiled to 
 help people figure out what sets they could build with any number of given parts, so all manner of part details and inventories can be found within.
 
-Also my Tableau dashboard on the subject can be found here https://public.tableau.com/app/profile/todd3092 for further perusing. Thanks for checking it out!
+Also my Tableau dashboard on the subject can be found here https://public.tableau.com/app/profile/todd3092/viz/LEGOProject_16730768558980/Dashboard2 for further perusing. 
+Thanks for checking it out!
