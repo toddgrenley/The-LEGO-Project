@@ -1,6 +1,6 @@
 # The-LEGO-Project
 
-This is my first scratch project--no ideas or methods were taken from anyone else as to how to analyze this database of LEGO parts and sets originally put together by 
+This is a scratch project--no ideas or methods were taken from anyone else as to how to analyze this database of LEGO parts and sets originally put together by 
 Rebrickable. I started with my own questions, and found my own answers.
 
 This database, like many, has numerous tables with only a few columns each, so I make use of Joins and Temp Tables galore. I started with the Sets and Themes tables as I 
