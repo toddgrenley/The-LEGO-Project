@@ -9,8 +9,7 @@ Inventory tables to get more specific part information to go along with the Sets
 was actually compiled to help people figure out what sets they could build with any number of given parts, so all manner of part details and inventories can be found 
 within.
 
-![image](https://github.com/toddgrenley/The-LEGO-Project/assets/119661479/2801425b-7487-4f69-a46b-9af66cdedb2a)
-
+![image](https://github.com/toddgrenley/The-LEGO-Project/assets/119661479/c587faa2-86db-458e-95fb-fe50d08a64af)
 
 /
 
